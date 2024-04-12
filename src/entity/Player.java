@@ -10,6 +10,7 @@ import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 
@@ -18,56 +19,135 @@ import animation.Animation;
 import animation.Animator;
 import main.GamePanel;
 import main.KeyHandler;
-
+import tile.Map;
 
 
 public class Player extends Entity
 {
     GamePanel gp;
     KeyHandler keyH;
+    Map map;
+    final int plSize = 21;
+    int xTile;
+    int yTile;
+    String tryDirection;
+    int oldX;
+    int oldY;
 
-    public Player(GamePanel gp,KeyHandler keyH)
+    public Player(GamePanel gp,KeyHandler keyH, Map map)
     {
         this.gp = gp;
         this.keyH =keyH;
-
+        this.map = map;
         seDefaultValues();
         setPlayerImages();
     }
     public void seDefaultValues()
     {
-        x=100;
-        y=100;
-        speed = 4;
+        x=gp.tileSize + (gp.tileSize/2);
+        y=gp.tileSize + (gp.tileSize/2);
+        oldX=x;
+        oldY=y;
+        speed = 2;
         direction = "right";
 
     }
     public void update()
     {
         anim.next();
+        move();
+        anim.run(direction);
+    }
+    private void move()
+    {
+
+        yTile = y/ gp.tileSize;
+        xTile = x/ gp.tileSize;
         if(keyH.upPressed)
         {
-            y -= speed;
-            direction="up";
+
+            tryDirection="up";
 
         }
         if(keyH.downPressed)
         {
-            y += speed;
-            direction="down";
+
+
+            tryDirection="down";
         }
         if(keyH.leftPressed)
         {
-            x -=speed;
-            direction="left";
+
+            tryDirection="left";
         }
         if(keyH.rightPressed)
         {
-            x +=speed;
-            direction="right";
-        }
-        anim.run(direction);
 
+            tryDirection="right";
+        }
+        if(Math.abs(x-(xTile* gp.tileSize+(gp.tileSize/2)))<=1) {
+            if (Objects.equals(tryDirection, "up") && map.intMap[yTile - 1][xTile] == 0) {
+                direction = "up";
+            }
+            if (Objects.equals(tryDirection, "down") && map.intMap[yTile + 1][xTile] == 0) {
+                direction = "down";
+            }
+        }
+        if(Math.abs(y-(yTile* gp.tileSize+(gp.tileSize/2)))<=1)
+        {
+            if(Objects.equals(tryDirection, "left")&&map.intMap[ yTile][xTile-1] == 0)
+            {
+                direction ="left";
+            }
+            if(Objects.equals(tryDirection, "right")&&map.intMap[ yTile][xTile+1] == 0)
+            {
+                direction ="right";
+            }
+        }
+        oldX=x;
+        oldY=y;
+        if(Objects.equals(direction, "up"))
+        {
+            if(map.intMap[ yTile-1][xTile] == 0 || y>yTile* gp.tileSize+(gp.tileSize/2))
+            {
+                y -= speed;
+            }
+
+        }
+        if(Objects.equals(direction, "down"))
+        {
+            if(map.intMap[ yTile+1][xTile] == 0 || y<yTile* gp.tileSize+(gp.tileSize/2))
+            {
+                y += speed;
+            }
+        }
+        if(Objects.equals(direction, "left"))
+        {
+            if(map.intMap[ yTile][xTile-1] == 0 || x>xTile* gp.tileSize+(gp.tileSize/2))
+            {
+                x -= speed;
+            }
+        }
+        if(Objects.equals(direction, "right"))
+        {
+            if(map.intMap[ yTile][xTile+1] == 0 || x<xTile* gp.tileSize+(gp.tileSize/2))
+            {
+                x += speed;
+            }
+        }
+        /*
+        if(oldX==x)
+        {
+            x = xTile* gp.tileSize+(gp.tileSize/2);
+        }
+        if(oldY==y)
+        {
+            y = yTile* gp.tileSize+(gp.tileSize/2);
+        }*/
+
+        System.out.println("x:"+x+" xt:"+ (xTile* gp.tileSize+(gp.tileSize/2)));
+        System.out.println("y:"+y+" yt:"+ (yTile* gp.tileSize+(gp.tileSize/2)));
+        System.out.println("xtile:"+xTile+" ytile:"+yTile);
     }
     public void setPlayerImages()
     {
@@ -84,7 +164,7 @@ public class Player extends Entity
     {
 
 
-        g2.drawImage(anim.getSprite(),x,y,gp.tileSize,gp.tileSize,null);
+        g2.drawImage(anim.getSprite(),x-(plSize/2),y-(plSize/2),plSize,plSize,null);
 
     }
 }
