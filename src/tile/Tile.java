@@ -32,6 +32,6 @@ public class Tile
         if(structure.substring(0, 1).equals("1"))
             oRight=true;
         code = structure;
-        System.out.println(oDown+" "+oLeft+" "+oUp+" "+oRight);
+
     }
 }

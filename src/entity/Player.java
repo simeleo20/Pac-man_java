@@ -24,12 +24,8 @@ import tile.Map;
 
 public class Player extends Entity
 {
-    GamePanel gp;
-    KeyHandler keyH;
-    Map map;
+
     final int plSize = 21;
-    int xTile;
-    int yTile;
     String tryDirection;
     int oldX;
     int oldY;
@@ -61,8 +57,8 @@ public class Player extends Entity
     private void move()
     {
 
-        yTile = y/ gp.tileSize;
-        xTile = x/ gp.tileSize;
+        updTilePos();
+        System.out.println(xTile);
         if(keyH.upPressed)
         {
 
@@ -85,24 +81,33 @@ public class Player extends Entity
 
             tryDirection="right";
         }
+
         if(Math.abs(x-(xTile* gp.tileSize+(gp.tileSize/2)))<=1) {
-            if (Objects.equals(tryDirection, "up") && map.intMap[yTile - 1][xTile] == 0) {
+            if (Objects.equals(tryDirection, "up") && map.intMap[yTile - 1][xTile] == 0 ) {
                 direction = "up";
             }
             if (Objects.equals(tryDirection, "down") && map.intMap[yTile + 1][xTile] == 0) {
                 direction = "down";
             }
         }
+
         if(Math.abs(y-(yTile* gp.tileSize+(gp.tileSize/2)))<=1)
         {
-            if(Objects.equals(tryDirection, "left")&&map.intMap[ yTile][xTile-1] == 0)
+            if(xTile>0&&Objects.equals(tryDirection, "left")&&map.intMap[ yTile][xTile-1] == 0)
             {
                 direction ="left";
             }
-            if(Objects.equals(tryDirection, "right")&&map.intMap[ yTile][xTile+1] == 0)
+
+            if(xTile<(gp.maxScreenCol-1))
             {
-                direction ="right";
+
+                if (Objects.equals(tryDirection, "right") && map.intMap[yTile][xTile + 1] == 0)
+                {
+                    direction = "right";
+                }
+
             }
+
         }
         oldX=x;
         oldY=y;
@@ -112,7 +117,6 @@ public class Player extends Entity
             {
                 y -= speed;
             }
-
         }
         if(Objects.equals(direction, "down"))
         {
@@ -123,18 +127,36 @@ public class Player extends Entity
         }
         if(Objects.equals(direction, "left"))
         {
-            if(map.intMap[ yTile][xTile-1] == 0 || x>xTile* gp.tileSize+(gp.tileSize/2))
-            {
+            if(xTile>0) {
+                if (map.intMap[yTile][xTile - 1] == 0 || x > xTile * gp.tileSize + (gp.tileSize / 2)) {
+                    x -= speed;
+                }
+            }
+            else {
                 x -= speed;
+                if(x<0)
+                    x=gp.maxScreenCol*gp.tileSize;
             }
         }
+
         if(Objects.equals(direction, "right"))
         {
-            if(map.intMap[ yTile][xTile+1] == 0 || x<xTile* gp.tileSize+(gp.tileSize/2))
+
+            if(xTile<gp.maxScreenCol-1)
+            {
+                System.out.println("ssss");
+                if (map.intMap[yTile][xTile + 1] == 0 || x < xTile * gp.tileSize + (gp.tileSize / 2)) {
+                    x += speed;
+                }
+            }
+            else
             {
                 x += speed;
+                if(x> gp.maxScreenCol*gp.tileSize)
+                    x=0;
             }
         }
+
         /*
         if(oldX==x)
         {
@@ -145,9 +167,7 @@ public class Player extends Entity
             y = yTile* gp.tileSize+(gp.tileSize/2);
         }*/
 
-        System.out.println("x:"+x+" xt:"+ (xTile* gp.tileSize+(gp.tileSize/2)));
-        System.out.println("y:"+y+" yt:"+ (yTile* gp.tileSize+(gp.tileSize/2)));
-        System.out.println("xtile:"+xTile+" ytile:"+yTile);
+
     }
     public void setPlayerImages()
     {
@@ -157,7 +177,6 @@ public class Player extends Entity
         anim.newAnimation("left","/player/",5,180);
         anim.newAnimation("up","/player/",5,270);
         anim.run("right");
-
 
     }
     public void draw(Graphics2D g2)
