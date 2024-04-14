@@ -14,7 +14,7 @@ import java.util.*;
 
 import static java.lang.Math.abs;
 
-public class Ghost extends Entity
+public class Ghost extends DynamicEntity
 {
 
     Player pl;
@@ -22,6 +22,9 @@ public class Ghost extends Entity
     final int ghSize = 21;
     boolean arrived;
     public boolean alive;
+    private boolean scared;
+    int scTrX;
+    int scTrY;
 
     public Ghost(GamePanel gp, Player pl, Map map, AStar aStar)
     {
@@ -31,7 +34,6 @@ public class Ghost extends Entity
         this.ast=aStar;
         setDefaultValues();
         setGhostImages("/ghost/blinky/");
-
     }
     public void setDefaultValues()
     {
@@ -41,15 +43,22 @@ public class Ghost extends Entity
         direction = "right";
         arrived = false;
         alive = true;
+        scared = false;
+        scTrX = 1;
+        scTrY = 1;
     }
     public void update()
     {
         if(alive)
         {
             checkCollision();
-            anim.next();
             move();
-            anim.run("right");
+            //region scelta animazione
+            if(!scared)
+                anim.run("idle");
+            else
+                anim.run("scared");
+            //endregion
         }
     }
 
@@ -95,6 +104,13 @@ public class Ghost extends Entity
         }
         //endregion
 
+        //region crea nuovo scared target
+        if(Math.abs(x-(scTrX*gp.tileSize +(gp.tileSize)/2))<=1 &&Math.abs(y-(scTrY*gp.tileSize +(gp.tileSize)/2))<=1)
+        {
+            newScTr();
+        }
+        //endregion
+
         //region checkBivio
         if(abs(x-xTarget)<=1 && abs(y-yTarget)<=1)
         {
@@ -117,16 +133,22 @@ public class Ghost extends Entity
     }
     public void goToTarget()
     {
-        goTo(pl.xTile,pl.yTile);
+        //region Sceglie il target e lo segue
+        if(!scared)
+            goTo(pl.xTile,pl.yTile);
+        else
+            goTo(scTrX, scTrY);
+        //endregion
     }
     private void goTo(int x,int y)
     {
         //region cerca strada
         ast.reset();
         ast.setInitialNode(new Node(xTile,yTile));
-        ast.setFinalNode(new Node(pl.xTile,pl.yTile));
+        ast.setFinalNode(new Node(x,y));
         List<Node> path = ast.findPath();
         //endregion
+
         //region choose direction
         if(path.size()>1) {
             if (xTile < path.get(1).getX()) {
@@ -145,24 +167,45 @@ public class Ghost extends Entity
         }
         //endregion
     }
+    private void newScTr()
+    {
+        //region scegli nuovo punto casuale
+        do
+        {
+            scTrX = (int)(Math.random()*(gp.maxScreenCol));
+            scTrY = (int)(Math.random()*(gp.maxScreenRow));
+            System.out.println("vado "+scTrX+" "+scTrY);
+        }while (!map.isFree(scTrX,scTrY));
+        //endregion
+    }
     public void setGhostImages(String directory)
     {
+        //region settaggio animazioni
         anim = new Animator();
-        anim.newAnimation("right",directory,5);
-        anim.run("right");
+        anim.newAnimation("idle",directory,5);
+        anim.newAnimation("scared","/ghost/scared/",5);
+        anim.run("idle");
+        //endregion
     }
     public void draw(Graphics2D g2)
     {
+        //region passa al frame successivo e lo disegna
         if (alive)
-            g2.drawImage(anim.getSprite(),x-(ghSize /2),y-(ghSize /2), ghSize, ghSize,null);
+        {
+            anim.next();
+            g2.drawImage(anim.getSprite(), x - (ghSize / 2), y - (ghSize / 2), ghSize, ghSize, null);
+        }
+        //endregion
     }
     private void checkCollision()
     {
+        //region Controlla la distanza dal player
         double dis = (double)abs(pl.x-x)+abs(pl.y-y) ;
         double minDis = (double)(pl.plSize+ghSize)/2;
         if(dis<=minDis)
         {
             alive = false;
         }
+        //endregion
     }
 }

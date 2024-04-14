@@ -10,6 +10,8 @@ public class Map
 {
     GamePanel gp;
     TileSet ts;
+
+    //region Mappa
     public int[][] intMap= {
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
             {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
@@ -31,6 +33,8 @@ public class Map
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     };
+    //endregion
+
     Tile[][] tileMap;
 
     public Map(GamePanel gp)
@@ -84,6 +88,12 @@ public class Map
 
 
     }
+
+    public boolean isFree(int x,int y)
+    {
+        return intMap[y][x] == 0;
+    }
+
     public void draw(Graphics2D g2)
     {
 
@@ -98,4 +108,5 @@ public class Map
 
 
     }
+
 }

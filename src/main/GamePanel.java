@@ -4,11 +4,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JPanel;
 
 import entity.Ghost;
+import entity.PacDot;
 import entity.Player;
 import tile.Map;
 import utilities.AStar;
@@ -19,13 +21,13 @@ public class GamePanel extends JPanel implements Runnable
 {
     //SCREEN SETTINGS
     final int originalTileSize =13;
-    final int scale = 3;
+    final public int scale = 3;
 
     final public int tileSize = originalTileSize*scale; 
     final public int maxScreenCol = 15;
     final public int maxScreenRow = 19;
-    final int screenWidth = tileSize*maxScreenCol;
-    final int screenHeight = tileSize * maxScreenRow;
+    final public int screenWidth = tileSize*maxScreenCol;
+    final public int screenHeight = tileSize * maxScreenRow;
 
     //FPS
     int FPS = 60;
@@ -35,12 +37,9 @@ public class GamePanel extends JPanel implements Runnable
     Thread gameThread;
     Map map = new Map(this);
     AStar aStar = new AStar(maxScreenRow, maxScreenCol, new Node(1, 1), new Node(2, 1),map.intMap);
-    Player player = new Player(this, keyH,map);
-    Ghost blicky = new Ghost(this,player,map,aStar);
+    EntityHandler eh = new EntityHandler(this,keyH,map,aStar);
 
-    int playerX = 100;
-    int playerY = 100;
-    int playerSpeed = 4;
+
 
     public GamePanel()
     {
@@ -100,8 +99,8 @@ public class GamePanel extends JPanel implements Runnable
     }
     public void update()
     {
-        player.update();
-        blicky.update();
+        eh.update();
+
     }
     public void paintComponent(Graphics g)
     {
@@ -109,8 +108,7 @@ public class GamePanel extends JPanel implements Runnable
 
         Graphics2D g2 = (Graphics2D)g;
         map.draw(g2);
-        player.draw(g2);
-        blicky.draw(g2);
+        eh.draw(g2);
 
         g2.dispose();
     }

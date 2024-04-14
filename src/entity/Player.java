@@ -2,9 +2,8 @@ package entity;
 
 
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.Color;
 import java.awt.image.*;
 
 import java.io.File;
@@ -22,15 +21,19 @@ import main.KeyHandler;
 import tile.Map;
 
 
-public class Player extends Entity
+public class Player extends DynamicEntity
 {
-
+    private KeyHandler keyH;
     final int plSize = 21;
     String tryDirection;
     int oldX;
     int oldY;
 
-    public Player(GamePanel gp,KeyHandler keyH, Map map)
+    private int points=0;
+
+
+
+    public Player(GamePanel gp, KeyHandler keyH, Map map)
     {
         this.gp = gp;
         this.keyH =keyH;
@@ -58,7 +61,6 @@ public class Player extends Entity
     {
 
         updTilePos();
-        System.out.println(xTile);
         if(keyH.upPressed)
         {
 
@@ -144,7 +146,6 @@ public class Player extends Entity
 
             if(xTile<gp.maxScreenCol-1)
             {
-                System.out.println("ssss");
                 if (map.intMap[yTile][xTile + 1] == 0 || x < xTile * gp.tileSize + (gp.tileSize / 2)) {
                     x += speed;
                 }
@@ -181,9 +182,20 @@ public class Player extends Entity
     }
     public void draw(Graphics2D g2)
     {
-
-
         g2.drawImage(anim.getSprite(),x-(plSize/2),y-(plSize/2),plSize,plSize,null);
+        g2.setColor(Color.white);
+        g2.setFont(new Font("TimesRoman", Font.PLAIN, gp.tileSize/2 -1));
 
+        g2.drawString("HIGH SCORE",gp.screenWidth/2 -(gp.tileSize*3/2),gp.tileSize/2);
+        g2.drawString(""+points,gp.screenWidth/2,gp.tileSize);
+    }
+
+    public int getPoints()
+    {
+        return points;
+    }
+    public void addPoints(int points)
+    {
+        this.points += points;
     }
 }
