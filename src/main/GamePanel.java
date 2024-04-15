@@ -20,7 +20,7 @@ import utilities.Node;
 public class GamePanel extends JPanel implements Runnable
 {
     //SCREEN SETTINGS
-    final int originalTileSize =13;
+    final int originalTileSize =16;
     final public int scale = 3;
 
     final public int tileSize = originalTileSize*scale; 
@@ -53,8 +53,6 @@ public class GamePanel extends JPanel implements Runnable
 //        aStar.setFinalNode(new Node(10,1));
 //        List<Node> path = aStar.findPath();
 //        System.out.println(path);
-
-
     }
 
     public void startGameThread()
@@ -111,5 +109,9 @@ public class GamePanel extends JPanel implements Runnable
         eh.draw(g2);
 
         g2.dispose();
+    }
+    public void restart()
+    {
+        eh = new EntityHandler(this,keyH,map,aStar);
     }
 }

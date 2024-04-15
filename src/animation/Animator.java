@@ -9,32 +9,43 @@ public class Animator
     private Animation runningAnimation;
     String runningAnimationName;
     String idleAnimation;
+
     public Animator()
     {
 
     }
     public void next()
     {
-        runningAnimation.next();
+
+        if(runningAnimation!=null)
+            runningAnimation.next();
+
         animHandler();
+
     }
     private void animHandler()
     {
-        if(animations.get(runningAnimationName).finished)
+        if(runningAnimation!=null)
         {
-            runningAnimationName = idleAnimation;
-            run(idleAnimation);
+            if (animations.get(runningAnimationName).finished)
+            {
+                runningAnimationName = idleAnimation;
+                run(idleAnimation);
 
+            }
         }
 
     }
     public BufferedImage getSprite()
     {
-        return runningAnimation.getSprite();
+        if(runningAnimation!=null)
+            return runningAnimation.getSprite();
+        else return null;
     }
-    public void newAnimation(String name,String directory, int speed)
+    public void newAnimation(String name,String directory, int speed,boolean loop)
     {
         Animation app = new Animation(directory,speed);
+        app.loop=loop;
         animations.put(name,app);
         if(runningAnimationName == null)
         {
@@ -66,6 +77,16 @@ public class Animator
             runningAnimation = animation;
         }
     }
+    public void newAnimation(String name,String directory, int speed,boolean loop,String message)
+    {
+        this.newAnimation( name, directory,  speed, loop);
+        getAnimation(name).endMessage = message;
+    }
+    public void newAnimation(String name,String directory, int speed)
+    {
+
+        this.newAnimation(name,directory, speed,true);
+    }
     public Animation getAnimation(String name)
     {
         return animations.get(name);
@@ -85,4 +106,5 @@ public class Animator
     {
         idleAnimation = name;
     }
+
 }

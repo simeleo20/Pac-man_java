@@ -19,17 +19,22 @@ import animation.Animator;
 import main.GamePanel;
 import main.KeyHandler;
 import tile.Map;
-
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Player extends DynamicEntity
 {
     private KeyHandler keyH;
-    final int plSize = 21;
+    final int plSize = 30;
     String tryDirection;
     int oldX;
     int oldY;
-
     private int points=0;
+    public boolean isChasing;
+    Timer timer = new Timer();
+    TimerTask stopChase;
+    boolean dead;
+    private int framesStop;
 
 
 
@@ -49,13 +54,25 @@ public class Player extends DynamicEntity
         oldY=y;
         speed = 2;
         direction = "right";
-
+        isChasing = false;
+        dead = false;
+        framesStop =0;
     }
     public void update()
     {
         anim.next();
-        move();
-        anim.run(direction);
+        if(framesStop<=0)
+        {
+            if (Objects.equals(anim.getAnimation("death").getMessage(), "finito"))
+                gp.restart();
+            if (!dead)
+            {
+                move();
+                anim.run(direction);
+            }
+        }
+        else framesStop--;
+
     }
     private void move()
     {
@@ -85,17 +102,17 @@ public class Player extends DynamicEntity
         }
 
         if(Math.abs(x-(xTile* gp.tileSize+(gp.tileSize/2)))<=1) {
-            if (Objects.equals(tryDirection, "up") && map.intMap[yTile - 1][xTile] == 0 ) {
+            if (Objects.equals(tryDirection, "up") && map.isFree(xTile,yTile-1) ) {
                 direction = "up";
             }
-            if (Objects.equals(tryDirection, "down") && map.intMap[yTile + 1][xTile] == 0) {
+            if (Objects.equals(tryDirection, "down") && map.isFree(xTile,yTile+1)) {
                 direction = "down";
             }
         }
 
         if(Math.abs(y-(yTile* gp.tileSize+(gp.tileSize/2)))<=1)
         {
-            if(xTile>0&&Objects.equals(tryDirection, "left")&&map.intMap[ yTile][xTile-1] == 0)
+            if(xTile>0&&Objects.equals(tryDirection, "left")&&map.isFree(xTile-1,yTile) )
             {
                 direction ="left";
             }
@@ -103,7 +120,7 @@ public class Player extends DynamicEntity
             if(xTile<(gp.maxScreenCol-1))
             {
 
-                if (Objects.equals(tryDirection, "right") && map.intMap[yTile][xTile + 1] == 0)
+                if (Objects.equals(tryDirection, "right") && map.isFree(xTile+1,yTile))
                 {
                     direction = "right";
                 }
@@ -115,14 +132,14 @@ public class Player extends DynamicEntity
         oldY=y;
         if(Objects.equals(direction, "up"))
         {
-            if(map.intMap[ yTile-1][xTile] == 0 || y>yTile* gp.tileSize+(gp.tileSize/2))
+            if(map.isFree(xTile,yTile-1) || y>yTile* gp.tileSize+(gp.tileSize/2))
             {
                 y -= speed;
             }
         }
         if(Objects.equals(direction, "down"))
         {
-            if(map.intMap[ yTile+1][xTile] == 0 || y<yTile* gp.tileSize+(gp.tileSize/2))
+            if(map.isFree(xTile,yTile+1) || y<yTile* gp.tileSize+(gp.tileSize/2))
             {
                 y += speed;
             }
@@ -130,7 +147,7 @@ public class Player extends DynamicEntity
         if(Objects.equals(direction, "left"))
         {
             if(xTile>0) {
-                if (map.intMap[yTile][xTile - 1] == 0 || x > xTile * gp.tileSize + (gp.tileSize / 2)) {
+                if (map.isFree(xTile-1,yTile) || x > xTile * gp.tileSize + (gp.tileSize / 2)) {
                     x -= speed;
                 }
             }
@@ -146,7 +163,7 @@ public class Player extends DynamicEntity
 
             if(xTile<gp.maxScreenCol-1)
             {
-                if (map.intMap[yTile][xTile + 1] == 0 || x < xTile * gp.tileSize + (gp.tileSize / 2)) {
+                if (map.isFree(xTile+1,yTile) || x < xTile * gp.tileSize + (gp.tileSize / 2)) {
                     x += speed;
                 }
             }
@@ -173,10 +190,11 @@ public class Player extends DynamicEntity
     public void setPlayerImages()
     {
         anim = new Animator();
-        anim.newAnimation("right","/player/",5);
-        anim.newAnimation("down","/player/",5,90);
-        anim.newAnimation("left","/player/",5,180);
-        anim.newAnimation("up","/player/",5,270);
+        anim.newAnimation("right","/player/idle/",5);
+        anim.newAnimation("down","/player/idle/",5,90);
+        anim.newAnimation("left","/player/idle/",5,180);
+        anim.newAnimation("up","/player/idle/",5,270);
+        anim.newAnimation("death","/player/death/",5,false,"finito");
         anim.run("right");
 
     }
@@ -198,4 +216,29 @@ public class Player extends DynamicEntity
     {
         this.points += points;
     }
+
+    public void chase()
+    {
+        isChasing=true;
+        stopChase = new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                isChasing = false;
+            }
+        };
+        timer.schedule(stopChase,6000);
+    }
+    public void kill()
+    {
+        anim.run("death");
+        dead = true;
+    }
+
+    public void addFramesStop(int frame)
+    {
+        framesStop += frame;
+    }
+
 }

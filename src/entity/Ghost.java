@@ -7,57 +7,80 @@ import utilities.AStar;
 import utilities.Node;
 
 import java.awt.*;
-import java.util.List;
-import java.util.Objects;
 
 import java.util.*;
+import java.util.List;
+
 
 import static java.lang.Math.abs;
+import static java.lang.Math.pow;
 
 public class Ghost extends DynamicEntity
 {
-
+    enum States
+    {
+        chase,
+        scatter,
+        eaten,
+        frightened
+    }
     Player pl;
     AStar ast;
     final int ghSize = 21;
     boolean arrived;
     public boolean alive;
-    private boolean scared;
-    int scTrX;
-    int scTrY;
+    private States state;
+    int scTrX,scTrY;
+    int dScTrX,dScTrY;
+    int spX, spY;
+    private boolean alreadyEaten;
+    private String name;
+    private Timer timer;
+    private TimerTask scatterChaseTask;
 
-    public Ghost(GamePanel gp, Player pl, Map map, AStar aStar)
+    public Ghost(GamePanel gp, Player pl, Map map, AStar aStar,int spX,int spY,String name)
     {
-        this.gp = gp;
+        this.gp  = gp;
         this.map = map;
-        this.pl =pl;
-        this.ast=aStar;
+        this.pl  = pl;
+        this.ast = aStar;
+        this.spX = spX;
+        this.spY = spY;
+        this.name = name;
         setDefaultValues();
-        setGhostImages("/ghost/blinky/");
+        setGhostImages("/ghost/"+name+"/idle/");
     }
     public void setDefaultValues()
     {
-        x=gp.tileSize*3 + (gp.tileSize/2);
-        y=gp.tileSize*3 + (gp.tileSize/2);
-        speed = 1;
-        direction = "right";
+        x=gp.tileSize*spX + (gp.tileSize/2);
+        y=gp.tileSize*spY + (gp.tileSize/2);
+        timer = new Timer();
+        speed = 2;
+        direction = "up";
         arrived = false;
         alive = true;
-        scared = false;
-        scTrX = 1;
-        scTrY = 1;
+        chaseState();
+        dScTrX = 1;
+        dScTrY = 1;
+        scTrX = dScTrX;
+        scTrY = dScTrY;
+        alreadyEaten = false;
+
     }
     public void update()
     {
         if(alive)
         {
+            checkState();
             checkCollision();
             move();
             //region scelta animazione
-            if(!scared)
-                anim.run("idle");
-            else
+            if(state == States.eaten)
+                anim.run("eatenDown");
+            else if(state == States.frightened)
                 anim.run("scared");
+            else
+                anim.run("idle");
             //endregion
         }
     }
@@ -72,7 +95,7 @@ public class Ghost extends DynamicEntity
         //region muovi in direzione
         if(Objects.equals(direction, "up"))
         {
-            if(map.intMap[ yTile-1][xTile] == 0 || y>yTarget)
+            if(map.isFree(xTile,yTile-1) || y>yTarget)
             {
                 y -= speed;
             }
@@ -80,7 +103,7 @@ public class Ghost extends DynamicEntity
         }
         if(Objects.equals(direction, "down"))
         {
-            if(map.intMap[ yTile+1][xTile] == 0 || y<yTarget)
+            if(map.isFree(xTile,yTile+1) || y<yTarget)
             {
                 y += speed;
             }
@@ -88,41 +111,71 @@ public class Ghost extends DynamicEntity
         }
         if(Objects.equals(direction, "left"))
         {
-            if(map.intMap[ yTile][xTile-1] == 0 || x>xTarget)
+            if(xTile>0)
             {
-                x -= speed;
+                if (map.isFree(xTile-1,yTile) || x > xTarget)
+                {
+                    x -= speed;
+                } else arrived = true;
             }
-            else arrived = true;
+            else {
+                x -= speed;
+                if(x<0)
+                    x=gp.maxScreenCol*gp.tileSize;
+            }
         }
         if(Objects.equals(direction, "right"))
         {
-            if(map.intMap[ yTile][xTile+1] == 0 || x<xTarget)
+            if(xTile<gp.maxScreenCol-1)
+            {
+                if (map.isFree(xTile+1,yTile) || x < xTarget)
+                {
+                    x += speed;
+                }
+                else arrived = true;
+            }
+            else
             {
                 x += speed;
+                if(x> gp.maxScreenCol*gp.tileSize)
+                {
+                    x = 0;
+                }
+
             }
-            else arrived = true;
+
         }
         //endregion
 
-        //region crea nuovo scared target
+        //region inutilizato crea nuovo scared target
+        /*
         if(Math.abs(x-(scTrX*gp.tileSize +(gp.tileSize)/2))<=1 &&Math.abs(y-(scTrY*gp.tileSize +(gp.tileSize)/2))<=1)
         {
             newScTr();
-        }
+        }*/
         //endregion
 
         //region checkBivio
-        if(abs(x-xTarget)<=1 && abs(y-yTarget)<=1)
+
+        if(speed == 3||speed ==2)
         {
-            if((map.intMap[yTile+1][xTile]==0||map.intMap[yTile-1][xTile]==0) && (Objects.equals(direction, "left") || Objects.equals(direction, "right")) )
+            if(abs(x-xTarget)<=1)
+                x = xTarget;
+            if(abs(y-yTarget)<=1)
+                y = yTarget;
+        }
+
+        if(x==xTarget && y==yTarget && xTile<gp.maxScreenCol-1 && xTile>0)
+        {
+            if((map.isFree(xTile,yTile+1)||map.isFree(xTile,yTile-1)) && (Objects.equals(direction, "left") || Objects.equals(direction, "right")) )
                 arrived=true;
-            if((map.intMap[yTile][xTile+1]==0||map.intMap[yTile][xTile-1]==0) && (Objects.equals(direction, "up") || Objects.equals(direction, "down")))
+            if((map.isFree(xTile+1,yTile)||map.isFree(xTile-1,yTile)) && (Objects.equals(direction, "up") || Objects.equals(direction, "down")))
                 arrived=true;
         }
         //endregion
 
         //region check nuova direzione
-        if (arrived)
+        if (arrived )
         {
             //System.out.println("arrivato");
             arrived = false;
@@ -134,18 +187,23 @@ public class Ghost extends DynamicEntity
     public void goToTarget()
     {
         //region Sceglie il target e lo segue
-        if(!scared)
+        if(state == States.chase)
             goTo(pl.xTile,pl.yTile);
-        else
+        else if (state == States.frightened)
+        {
+            randomDir();
+        } else
             goTo(scTrX, scTrY);
         //endregion
     }
     private void goTo(int x,int y)
     {
-        //region cerca strada
+        //region inutilizato cerca strada vecchio path finding
+        /*
         ast.reset();
         ast.setInitialNode(new Node(xTile,yTile));
         ast.setFinalNode(new Node(x,y));
+        ast.setDirection(direction);
         List<Node> path = ast.findPath();
         //endregion
 
@@ -164,8 +222,9 @@ public class Ghost extends DynamicEntity
                 direction = "up";
             }
 
-        }
+        }*/
         //endregion
+        getNewDir(x,y);
     }
     private void newScTr()
     {
@@ -184,6 +243,7 @@ public class Ghost extends DynamicEntity
         anim = new Animator();
         anim.newAnimation("idle",directory,5);
         anim.newAnimation("scared","/ghost/scared/",5);
+        anim.newAnimation("eatenDown","/ghost/"+name+"/eaten/down",1);
         anim.run("idle");
         //endregion
     }
@@ -204,8 +264,237 @@ public class Ghost extends DynamicEntity
         double minDis = (double)(pl.plSize+ghSize)/2;
         if(dis<=minDis)
         {
-            alive = false;
+            collision();
         }
         //endregion
+    }
+    protected void collision()
+    {
+        if(state == States.frightened)
+        {
+            eatenState();
+        }
+        else if (state == States.chase||state==States.scatter)
+        {
+            pl.kill();
+            alive = false;
+        }
+    }
+    private void getNewDir(int tX, int tY)
+    {
+        //region Direzione più veloce
+        double minDis =-2;
+        String minDir = "up";
+        double app = -1;
+
+        //region check up
+        if(map.isFree(xTile,yTile-1)&& !Objects.equals(direction, "down"))
+        {
+            app = distance(tX,tY,xTile,yTile-1);
+            if(minDis<0)
+            {
+                minDis=app;
+                minDir="up";
+            }
+        }
+        //endregion
+
+        //region check left
+        if(map.isFree(xTile-1,yTile)&& !Objects.equals(direction, "right"))
+        {
+            app = distance(tX,tY,xTile-1,yTile);
+            if(minDis<0)
+            {
+                minDis=app;
+                minDir="left";
+            }
+            else if(app<minDis)
+            {
+                minDis=app;
+                minDir="left";
+            }
+
+        }
+        //endregion
+
+        //region check down
+        if(map.isFree(xTile,yTile+1)&& !Objects.equals(direction, "up"))
+        {
+            app = distance(tX,tY,xTile,yTile+1);
+            if(minDis<0)
+            {
+                minDis=app;
+                minDir="down";
+            }
+            else if(app<minDis)
+            {
+                minDis=app;
+                minDir="down";
+            }
+
+        }
+        //endregion
+
+        //region check right
+        if(map.isFree(xTile+1,yTile)&& !Objects.equals(direction, "left"))
+        {
+            app = distance(tX,tY,xTile+1,yTile);
+            if(minDis<0)
+            {
+                minDis=app;
+                minDir="right";
+            }
+            else if(app<minDis)
+            {
+                minDis=app;
+                minDir="right";
+            }
+
+        }
+        //endregion
+
+        direction = minDir;
+        //endregion
+    }
+    private double distance(int x1,int y1, int x2, int y2)
+    {return pow(y1-y2,2)+pow(x1-x2,2);}
+    private void frightenedState()
+    {
+        state = States.frightened;
+        speed = 1;
+        oppositeDirection();
+    }
+    private void chaseState()
+    {
+        state = States.chase;
+        speed = 2;
+        switchChaseScatter(20000);
+        System.out.println("chase");
+    }
+    private void scatterState()
+    {
+        state = States.scatter;
+        scTrX = dScTrX;
+        scTrY = dScTrY;
+        speed = 2;
+        switchChaseScatter(7000);
+        oppositeDirection();
+        System.out.println("scatter");
+    }
+    private void eatenState()
+    {
+        scTrX = spX;
+        scTrY = spY;
+        state = States.eaten;
+        alreadyEaten = true;
+        speed = 3;
+    }
+    private void oppositeDirection()
+    {
+        if(Objects.equals(direction, "right")) direction="left";
+        else if(Objects.equals(direction, "left")) direction="right";
+        else if(Objects.equals(direction, "down")) direction="up";
+        else if(Objects.equals(direction, "up")) direction="down";
+    }
+    private void checkState()
+    {
+        if(state==States.chase||state==States.scatter)
+        {
+            if(pl.isChasing&&!alreadyEaten)
+            {
+                frightenedState();
+            }
+            if(!pl.isChasing)
+            {
+                alreadyEaten = false;
+            }
+        } else if (state==States.frightened)
+        {
+            if(!pl.isChasing)
+            {
+                chaseState();
+            }
+        } else if (state==States.eaten)
+        {
+            if(xTile == spX && yTile == spY)
+            {
+                chaseState();
+            }
+        }
+    }
+    public void randomDir()
+    {
+        int nX=xTile ,nY =yTile;
+        String nDir = "right";
+        int f=0;
+        do
+        {
+            nX=xTile ;
+            nY =yTile;
+            int f1=0;
+            int s = (int)(Math.random()*4);
+            if(s == 0)
+            {
+                if(!Objects.equals(direction, "left"))
+                {
+                    nX = xTile + 1;
+                    nDir = "right";
+                    f1 =1;
+                }
+            } else if (s==1)
+            {
+                if(!Objects.equals(direction, "right"))
+                {
+                    nX = xTile - 1;
+                    nDir = "left";
+                    f1 =1;
+                }
+            } else if (s==2)
+            {
+                if(!Objects.equals(direction, "down"))
+                {
+                    nY = yTile - 1;
+                    nDir = "up";
+                    f1 =1;
+                }
+            } else if (s==3)
+            {
+                if(!Objects.equals(direction, "up"))
+                {
+                    nY = yTile + 1;
+                    nDir = "down";
+                    f1 =1;
+                }
+            }
+            if(f1==1)
+            {
+                if(map.isFree(nX,nY))
+                    f=1;
+            }
+
+        }while(f==0);
+        direction = nDir;
+    }
+
+    private void switchChaseScatter(int delay)
+    {
+        if(scatterChaseTask!=null)
+            scatterChaseTask.cancel();
+        scatterChaseTask = new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                if(state == States.chase)
+                {
+                    scatterState();
+                }
+                else
+                {
+                    chaseState();
+                }
+            }
+        };
+        timer.schedule(scatterChaseTask,delay);
     }
 }

@@ -11,28 +11,31 @@ public class Map
     GamePanel gp;
     TileSet ts;
 
-    //region Mappa
-    public int[][] intMap= {
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1},
-            {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
-            {1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1},
-            {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
-            {1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1},
-            {0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-            {1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1},
-            {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
-            {1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1},
-            {1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1},
-            {1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    private final String[] strMap=
+    {
+            "wwwwwwwwwwwwwww",
+            "w      w      w",
+            "w ww w w w ww w",
+            "w+           +w",
+            "w ww w w w ww w",
+            "w    w   w    w",
+            "wwww ww ww wwww",
+            "wwww       wwww",
+            "wwww ww ww wwww",
+            "     w   w     ",
+            "wwww wwwww wwww",
+            "wwww       wwww",
+            "wwww wwwww wwww",
+            "ww     w     ww",
+            "ww www w www ww",
+            "w             w",
+            "w ww wwwww ww w",
+            "w             w",
+            "wwwwwwwwwwwwwww",
     };
+
+    //region Mappa
+    public int[][] intMap;
     //endregion
 
     Tile[][] tileMap;
@@ -42,6 +45,7 @@ public class Map
         ts = new TileSet("/tiles/");
         this.gp = gp;
         tileMap = new Tile[gp.maxScreenRow][gp.maxScreenCol];
+        intMap = stringsToIntMap();
         setTileMap();
     }
     private void setTileMap()
@@ -52,28 +56,28 @@ public class Map
                 boolean oLeft=false;
                 boolean oUp=false;
                 boolean oRight=false;
-                if(intMap[y][x]==0) {
+                if(isFree(x,y)) {
                     if (y > 0) {
 
-                        if (intMap[y - 1][x] == 0) {
+                        if (isFree(x,y-1)) {
                             oUp = true;
                         }
                     }
                     else oUp = true;
                     if (x > 0) {
-                        if (intMap[y][x - 1] == 0) {
+                        if (isFree(x-1,y)) {
                             oLeft = true;
                         }
                     }
                     else oLeft = true;
                     if (y < gp.maxScreenRow - 1) {
-                        if (intMap[y + 1][x] == 0) {
+                        if (isFree(x,y+1)) {
                             oDown = true;
                         }
                     }
                     else oDown = true;
                     if (x < gp.maxScreenCol - 1) {
-                        if (intMap[y][x + 1] == 0) {
+                        if (isFree(x+1,y)) {
                             oRight = true;
                         }
                     }
@@ -91,7 +95,10 @@ public class Map
 
     public boolean isFree(int x,int y)
     {
-        return intMap[y][x] == 0;
+        if(x>=0 && x< gp.maxScreenCol && y>=0 && y< gp.maxScreenRow)
+            return intMap[y][x] == 0 ||intMap[y][x] == 2;
+        else
+            return false;
     }
 
     public void draw(Graphics2D g2)
@@ -109,4 +116,24 @@ public class Map
 
     }
 
+    private int[][] stringsToIntMap()
+    {
+        int[][] out;
+        out = new int[gp.maxScreenRow][gp.maxScreenCol];
+        for (int y = 0; y < gp.maxScreenRow; y++)
+        {
+            String str = strMap[y];
+            for (int x = 0; x < gp.maxScreenCol; x++)
+            {
+                char ch = str.charAt(x);
+                if(ch == 'w')
+                    out[y][x] = 1;
+                else if(ch == ' ')
+                    out[y][x] = 0;
+                else if(ch == '+')
+                    out[y][x] = 2;
+            }
+        }
+        return out;
+    }
 }

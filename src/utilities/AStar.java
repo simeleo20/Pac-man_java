@@ -14,6 +14,8 @@ public class AStar {
     private Node finalNode;
     private int rows;
     private int cols;
+    private String direction;
+
 
     public AStar(int rows, int cols, Node initialNode, Node finalNode, int hvCost, int diagonalCost) {
         this.hvCost = hvCost;
@@ -122,7 +124,8 @@ public class AStar {
             if (col + 1 < getSearchArea()[0].length) {
                 //checkNode(currentNode, col + 1, lowerRow, getDiagonalCost()); // Comment this line if diagonal movements are not allowed
             }
-            checkNode(currentNode, col, lowerRow, getHvCost());
+            if(!Objects.equals(direction, "up")||currentNode!=initialNode)
+                checkNode(currentNode, col, lowerRow, getHvCost());//sotto
         }
     }
 
@@ -131,10 +134,12 @@ public class AStar {
         int col = currentNode.getX();
         int middleRow = row;
         if (col - 1 >= 0) {
-            checkNode(currentNode, col - 1, middleRow, getHvCost());
+            if(!Objects.equals(direction, "right")||currentNode!=initialNode)
+                checkNode(currentNode, col - 1, middleRow, getHvCost());//sinistra
         }
         if (col + 1 < getSearchArea()[0].length) {
-            checkNode(currentNode, col + 1, middleRow, getHvCost());
+            if(!Objects.equals(direction, "left")||currentNode!=initialNode)
+                checkNode(currentNode, col + 1, middleRow, getHvCost());//destra
         }
     }
 
@@ -149,7 +154,8 @@ public class AStar {
             if (col + 1 < getSearchArea()[0].length) {
                 //checkNode(currentNode, col + 1, upperRow, getDiagonalCost()); // Comment this if diagonal movements are not allowed
             }
-            checkNode(currentNode, col, upperRow, getHvCost());
+            if(!Objects.equals(direction, "down")||currentNode!=initialNode)
+                checkNode(currentNode, col, upperRow, getHvCost());//sopra
         }
     }
 
@@ -237,5 +243,9 @@ public class AStar {
 
     private void setDiagonalCost(int diagonalCost) {
         this.diagonalCost = diagonalCost;
+    }
+    public void setDirection(String direction)
+    {
+        this.direction = direction;
     }
 }
