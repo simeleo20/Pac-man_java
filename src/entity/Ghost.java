@@ -183,6 +183,7 @@ public class Ghost extends DynamicEntity
         }
         //endregion
 
+
     }
     public void goToTarget()
     {
@@ -427,53 +428,53 @@ public class Ghost extends DynamicEntity
         int nX=xTile ,nY =yTile;
         String nDir = "right";
         int f=0;
-        do
-        {
-            nX=xTile ;
-            nY =yTile;
-            int f1=0;
-            int s = (int)(Math.random()*4);
-            if(s == 0)
-            {
-                if(!Objects.equals(direction, "left"))
-                {
-                    nX = xTile + 1;
-                    nDir = "right";
-                    f1 =1;
+        int bC=0;
+        if(!map.isFree(xTile+1,yTile)) bC++;
+        if(!map.isFree(xTile-1,yTile)) bC++;
+        if(!map.isFree(xTile,yTile-1)) bC++;
+        if(!map.isFree(xTile,yTile+1)) bC++;
+        if(bC<3) {
+            do {
+                nX = xTile;
+                nY = yTile;
+                int f1 = 0;
+                int s = (int) (Math.random() * 4);
+                if (s == 0) {
+                    if (!Objects.equals(direction, "left")) {
+                        nX = xTile + 1;
+                        nDir = "right";
+                        f1 = 1;
+                    }
+                } else if (s == 1) {
+                    if (!Objects.equals(direction, "right")) {
+                        nX = xTile - 1;
+                        nDir = "left";
+                        f1 = 1;
+                    }
+                } else if (s == 2) {
+                    if (!Objects.equals(direction, "down")) {
+                        nY = yTile - 1;
+                        nDir = "up";
+                        f1 = 1;
+                    }
+                } else if (s == 3) {
+                    if (!Objects.equals(direction, "up")) {
+                        nY = yTile + 1;
+                        nDir = "down";
+                        f1 = 1;
+                    }
                 }
-            } else if (s==1)
-            {
-                if(!Objects.equals(direction, "right"))
-                {
-                    nX = xTile - 1;
-                    nDir = "left";
-                    f1 =1;
+                if (f1 == 1) {
+                    if (map.isFree(nX, nY))
+                        f = 1;
                 }
-            } else if (s==2)
-            {
-                if(!Objects.equals(direction, "down"))
-                {
-                    nY = yTile - 1;
-                    nDir = "up";
-                    f1 =1;
-                }
-            } else if (s==3)
-            {
-                if(!Objects.equals(direction, "up"))
-                {
-                    nY = yTile + 1;
-                    nDir = "down";
-                    f1 =1;
-                }
-            }
-            if(f1==1)
-            {
-                if(map.isFree(nX,nY))
-                    f=1;
-            }
 
-        }while(f==0);
-        direction = nDir;
+            } while (f == 0);
+            direction = nDir;
+        }
+        else {
+            oppositeDirection();
+        }
     }
 
     private void switchChaseScatter(int delay)
