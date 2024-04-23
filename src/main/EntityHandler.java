@@ -30,13 +30,14 @@ public class EntityHandler
         this.map = map;
         this.ast = ast;
         player = new Player(gp, keyH,map);
-        blicky = new Ghost(gp,player,map,ast,7,9,"blinky");
+        blicky = new Ghost(gp,player,map,ast,10,11,"blinky");
         pacDots = new LinkedList<>();
         fillPacDots();
     }
 
     public void update()
     {
+
         for(PacDot pacdot:pacDots)
         {
             pacdot.update();
@@ -51,7 +52,6 @@ public class EntityHandler
         {
             pacdot.draw(g2);
         }
-
         blicky.draw(g2);
         player.draw(g2);
     }
@@ -60,16 +60,10 @@ public class EntityHandler
         for (int y = 0; y < gp.maxScreenRow; y++)
             for (int x = 0; x < gp.maxScreenCol; x++)
             {
-
-
-                if(map.intMap[y][x]==0)
+                if(map.intMap[y][x]==3)
                     pacDots.add(new PacDot(gp,player,x,y));
                 else if(map.intMap[y][x]==2)
                     pacDots.add(new PowerPellet(gp,player,x,y));
-
             }
-
-
     }
-
 }

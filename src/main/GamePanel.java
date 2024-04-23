@@ -21,11 +21,11 @@ public class GamePanel extends JPanel implements Runnable
 {
     //SCREEN SETTINGS
     final int originalTileSize =16;
-    final public int scale = 3;
+    final public double scale = 1.5;
 
-    final public int tileSize = originalTileSize*scale; 
-    final public int maxScreenCol = 15;
-    final public int maxScreenRow = 19;
+    final public int tileSize = (int)((double)originalTileSize*scale);
+    final public int maxScreenCol = 23;
+    final public int maxScreenRow = 25;
     final public int screenWidth = tileSize*maxScreenCol;
     final public int screenHeight = tileSize * maxScreenRow;
 
@@ -97,11 +97,13 @@ public class GamePanel extends JPanel implements Runnable
     }
     public void update()
     {
+        System.out.println("update");
         eh.update();
 
     }
     public void paintComponent(Graphics g)
     {
+
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D)g;

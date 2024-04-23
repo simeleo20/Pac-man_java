@@ -11,7 +11,7 @@ public class PowerPellet extends PacDot
     }
     public void setDefaultValues()
     {
-        dotSize = 4 * gp.scale;
+        dotSize = (int)((double)4 * gp.scale);
         alive = true;
         points = 100;
     }

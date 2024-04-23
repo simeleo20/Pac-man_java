@@ -13,25 +13,31 @@ public class Map
 
     private final String[] strMap=
     {
-            "wwwwwwwwwwwwwww",
-            "w      w      w",
-            "w ww w w w ww w",
-            "w+           +w",
-            "w ww w w w ww w",
-            "w    w   w    w",
-            "wwww ww ww wwww",
-            "wwww       wwww",
-            "wwww ww ww wwww",
-            "     w   w     ",
-            "wwww wwwww wwww",
-            "wwww       wwww",
-            "wwww wwwww wwww",
-            "ww     w     ww",
-            "ww www w www ww",
-            "w             w",
-            "w ww wwwww ww w",
-            "w             w",
-            "wwwwwwwwwwwwwww",
+            "wwwwwwwwwwwwwwwwwwwwwww",
+            "w,,,,,,,,,,w,,,,,,,,,,w",
+            "w+www,wwww,w,wwww,www+w",
+            "w,www,wwww,w,wwww,www,w",
+            "w,,,,,,,,,,,,,,,,,,,,,w",
+            "w,www,w,wwwwwww,w,www,w",
+            "w,,,,,w,wwwwwww,w,,,,,w",
+            "wwwww,w,,,,w,,,,w,wwwww",
+            "wwwww,wwww w wwww,wwwww",
+            "wwwww,w         w,wwwww",
+            "wwwww,w www www w,wwwww",
+            "     ,  wMM MMw  ,     ",
+            "wwwww,w wwwwwww w,wwwww",
+            "wwwww,w         w,wwwww",
+            "wwwww,w wwwwwww w,wwwww",
+            "wwwww,w wwwwwww w,wwwww",
+            "w,,,,,,,,,,w,,,,,,,,,,w",
+            "w,www,wwww,w,wwww,www,w",
+            "w+,,w,,,,,,,,,,,,,w,,+w",
+            "www,w,w,wwwwwww,w,w,www",
+            "w,,,,,w,,,,w,,,,w,,,,,w",
+            "w,wwwwwwww,w,wwwwwwww,w",
+            "w,wwwwwwww,w,wwwwwwww,w",
+            "w,,,,,,,,,,,,,,,,,,,,,w",
+            "wwwwwwwwwwwwwwwwwwwwwww",
     };
 
     //region Mappa
@@ -96,7 +102,7 @@ public class Map
     public boolean isFree(int x,int y)
     {
         if(x>=0 && x< gp.maxScreenCol && y>=0 && y< gp.maxScreenRow)
-            return intMap[y][x] == 0 ||intMap[y][x] == 2;
+            return intMap[y][x] == 0 ||intMap[y][x] == 2 ||intMap[y][x] == 3;
         else
             return false;
     }
@@ -132,6 +138,10 @@ public class Map
                     out[y][x] = 0;
                 else if(ch == '+')
                     out[y][x] = 2;
+                else if (ch == ',')
+                {
+                    out[y][x] = 3;
+                }
             }
         }
         return out;

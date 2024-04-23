@@ -4,17 +4,19 @@ import animation.Animator;
 import main.GamePanel;
 import tile.Map;
 import utilities.AStar;
-import utilities.Node;
 
 import java.awt.*;
 
 import java.util.*;
-import java.util.List;
 
 
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 
+/*
+ *  c'è un bug si incastra nello spawn
+ *
+ */
 public class Ghost extends DynamicEntity
 {
     enum States
@@ -22,7 +24,9 @@ public class Ghost extends DynamicEntity
         chase,
         scatter,
         eaten,
-        frightened
+        frightened,
+        jailed
+
     }
     Player pl;
     AStar ast;
@@ -30,40 +34,40 @@ public class Ghost extends DynamicEntity
     boolean arrived;
     public boolean alive;
     private States state;
-    int scTrX,scTrY;
-    int dScTrX,dScTrY;
-    int spX, spY;
+    int scatterX, scatterY;
+    int spawnX, spawnY;
+    int jailTimer;
+
     private boolean alreadyEaten;
     private String name;
     private Timer timer;
     private TimerTask scatterChaseTask;
 
-    public Ghost(GamePanel gp, Player pl, Map map, AStar aStar,int spX,int spY,String name)
+    public Ghost(GamePanel gp, Player pl, Map map, AStar aStar,int spawnX,int spawnY,String name)
     {
         this.gp  = gp;
         this.map = map;
         this.pl  = pl;
         this.ast = aStar;
-        this.spX = spX;
-        this.spY = spY;
+        this.spawnX = spawnX;
+        this.spawnY = spawnY;
         this.name = name;
         setDefaultValues();
         setGhostImages("/ghost/"+name+"/idle/");
     }
     public void setDefaultValues()
     {
-        x=gp.tileSize*spX + (gp.tileSize/2);
-        y=gp.tileSize*spY + (gp.tileSize/2);
+        x=gp.tileSize* spawnX + (gp.tileSize/2);
+        y=gp.tileSize* spawnY + (gp.tileSize/2);
         timer = new Timer();
         speed = 2;
         direction = "up";
         arrived = false;
         alive = true;
         chaseState();
-        dScTrX = 1;
-        dScTrY = 1;
-        scTrX = dScTrX;
-        scTrY = dScTrY;
+        scatterX = 1;
+        scatterY = 1;
+
         alreadyEaten = false;
 
     }
@@ -189,12 +193,16 @@ public class Ghost extends DynamicEntity
     {
         //region Sceglie il target e lo segue
         if(state == States.chase)
-            goTo(pl.xTile,pl.yTile);
+            goTo(getChaseX(),getChaseY());
         else if (state == States.frightened)
         {
             randomDir();
-        } else
-            goTo(scTrX, scTrY);
+        } else if(state == States.scatter)
+            goTo(scatterX, scatterY);
+        else
+        {
+            goTo(spawnX,spawnY);
+        }
         //endregion
     }
     private void goTo(int x,int y)
@@ -227,17 +235,7 @@ public class Ghost extends DynamicEntity
         //endregion
         getNewDir(x,y);
     }
-    private void newScTr()
-    {
-        //region scegli nuovo punto casuale
-        do
-        {
-            scTrX = (int)(Math.random()*(gp.maxScreenCol));
-            scTrY = (int)(Math.random()*(gp.maxScreenRow));
-            System.out.println("vado "+scTrX+" "+scTrY);
-        }while (!map.isFree(scTrX,scTrY));
-        //endregion
-    }
+
     public void setGhostImages(String directory)
     {
         //region settaggio animazioni
@@ -375,8 +373,6 @@ public class Ghost extends DynamicEntity
     private void scatterState()
     {
         state = States.scatter;
-        scTrX = dScTrX;
-        scTrY = dScTrY;
         speed = 2;
         switchChaseScatter(7000);
         oppositeDirection();
@@ -384,11 +380,13 @@ public class Ghost extends DynamicEntity
     }
     private void eatenState()
     {
-        scTrX = spX;
-        scTrY = spY;
         state = States.eaten;
         alreadyEaten = true;
         speed = 3;
+    }
+    private void jailedState()
+    {
+
     }
     private void oppositeDirection()
     {
@@ -417,7 +415,7 @@ public class Ghost extends DynamicEntity
             }
         } else if (state==States.eaten)
         {
-            if(xTile == spX && yTile == spY)
+            if(xTile == spawnX && yTile == spawnY)
             {
                 chaseState();
             }
@@ -498,4 +496,15 @@ public class Ghost extends DynamicEntity
         };
         timer.schedule(scatterChaseTask,delay);
     }
+
+
+    public int getChaseX()
+    {
+        return pl.xTile;
+    }
+    public int getChaseY()
+    {
+        return pl.yTile;
+    }
+
 }

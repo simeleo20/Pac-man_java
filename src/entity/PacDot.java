@@ -23,7 +23,7 @@ public class PacDot extends Entity
     }
     public void setDefaultValues()
     {
-        dotSize = 2 * gp.scale;
+        dotSize = (int)((double)2 * gp.scale);
         alive = true;
         points = 10;
 
