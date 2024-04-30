@@ -43,6 +43,9 @@ public class Ghost extends DynamicEntity
     private Timer timer;
     private TimerTask scatterChaseTask;
 
+    private boolean tunneled;
+    private boolean tunnelOut;
+
     public Ghost(GamePanel gp, Player pl, Map map, AStar aStar,int spawnX,int spawnY,String name)
     {
         this.gp  = gp;
@@ -67,7 +70,8 @@ public class Ghost extends DynamicEntity
         chaseState();
         scatterX = 1;
         scatterY = 1;
-
+        tunneled = false;
+        tunnelOut = false;
         alreadyEaten = false;
 
     }
@@ -96,12 +100,16 @@ public class Ghost extends DynamicEntity
         int yTarget =yTile* gp.tileSize+(gp.tileSize/2);
         int xTarget =xTile* gp.tileSize+(gp.tileSize/2);
 
+        int rSpeed = speed;
+
+        if(tunneled) rSpeed = 1;
+
         //region muovi in direzione
         if(Objects.equals(direction, "up"))
         {
             if(map.isFree(xTile,yTile-1) || y>yTarget)
             {
-                y -= speed;
+                y -= rSpeed;
             }
             else arrived = true;
         }
@@ -109,7 +117,7 @@ public class Ghost extends DynamicEntity
         {
             if(map.isFree(xTile,yTile+1) || y<yTarget)
             {
-                y += speed;
+                y += rSpeed;
             }
             else arrived = true;
         }
@@ -119,13 +127,16 @@ public class Ghost extends DynamicEntity
             {
                 if (map.isFree(xTile-1,yTile) || x > xTarget)
                 {
-                    x -= speed;
+                    x -= rSpeed;
                 } else arrived = true;
             }
             else {
-                x -= speed;
+                x -= rSpeed;
                 if(x<0)
-                    x=gp.maxScreenCol*gp.tileSize;
+                {
+                    x = gp.maxScreenCol * gp.tileSize;
+                    tunnelOut = true;
+                }
             }
         }
         if(Objects.equals(direction, "right"))
@@ -134,16 +145,17 @@ public class Ghost extends DynamicEntity
             {
                 if (map.isFree(xTile+1,yTile) || x < xTarget)
                 {
-                    x += speed;
+                    x += rSpeed;
                 }
                 else arrived = true;
             }
             else
             {
-                x += speed;
+                x += rSpeed;
                 if(x> gp.maxScreenCol*gp.tileSize)
                 {
                     x = 0;
+                    tunnelOut=true;
                 }
 
             }
@@ -161,7 +173,7 @@ public class Ghost extends DynamicEntity
 
         //region checkBivio
 
-        if(speed == 3||speed ==2)
+        if(rSpeed == 3||rSpeed ==2)
         {
             if(abs(x-xTarget)<=1)
                 x = xTarget;
@@ -175,6 +187,25 @@ public class Ghost extends DynamicEntity
                 arrived=true;
             if((map.isFree(xTile+1,yTile)||map.isFree(xTile-1,yTile)) && (Objects.equals(direction, "up") || Objects.equals(direction, "down")))
                 arrived=true;
+        }
+        //endregion
+
+        //region check tunneled
+        if(xTile>0 && xTile<gp.maxScreenCol)
+        {
+            if (tunnelOut==false && map.intMap[yTile][xTile] == 5)
+            {
+                tunneled = true;
+            }
+            if(tunnelOut==true&& map.intMap[yTile][xTile] == 5)
+            {
+                tunneled = false;
+
+            }
+            if(tunnelOut==true && tunneled ==false && map.intMap[yTile][xTile] != 5)
+            {
+                tunnelOut=false;
+            }
         }
         //endregion
 
@@ -272,6 +303,7 @@ public class Ghost extends DynamicEntity
         if(state == States.frightened)
         {
             eatenState();
+            pl.eatGhost();
         }
         else if (state == States.chase||state==States.scatter)
         {
@@ -309,8 +341,11 @@ public class Ghost extends DynamicEntity
             }
             else if(app<minDis)
             {
-                minDis=app;
-                minDir="left";
+                if(state == States.eaten || map.intMap[yTile][xTile-1]!=4)
+                {
+                    minDis = app;
+                    minDir = "left";
+                }
             }
 
         }
@@ -345,8 +380,11 @@ public class Ghost extends DynamicEntity
             }
             else if(app<minDis)
             {
-                minDis=app;
-                minDir="right";
+                if(state == States.eaten || map.intMap[yTile][xTile+1]!=4)
+                {
+                    minDis = app;
+                    minDir = "right";
+                }
             }
 
         }
@@ -382,7 +420,7 @@ public class Ghost extends DynamicEntity
     {
         state = States.eaten;
         alreadyEaten = true;
-        speed = 3;
+        speed = 2;
     }
     private void jailedState()
     {

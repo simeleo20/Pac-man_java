@@ -36,7 +36,7 @@ public class Player extends DynamicEntity
     boolean dead;
     private int framesStop;
 
-
+    int ghostEaten;
 
     public Player(GamePanel gp, KeyHandler keyH, Map map)
     {
@@ -57,6 +57,7 @@ public class Player extends DynamicEntity
         isChasing = false;
         dead = false;
         framesStop =0;
+        ghostEaten =0;
     }
     public void update()
     {
@@ -217,8 +218,23 @@ public class Player extends DynamicEntity
         this.points += points;
     }
 
+    public void eatGhost()
+    {
+        if (ghostEaten==0)
+            points+=200;
+        else if (ghostEaten==1)
+            points+=400;
+        else if (ghostEaten==2)
+            points+=800;
+        else if (ghostEaten==3)
+            points+=1600;
+
+
+    }
+
     public void chase()
     {
+        ghostEaten =0;
         isChasing=true;
         stopChase = new TimerTask()
         {

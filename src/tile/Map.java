@@ -24,7 +24,7 @@ public class Map
             "wwwww,wwww w wwww,wwwww",
             "wwwww,w         w,wwwww",
             "wwwww,w www www w,wwwww",
-            "     ,  wMM MMw  ,     ",
+            "    t,  wMM MMw  ,t    ",
             "wwwww,w wwwwwww w,wwwww",
             "wwwww,w         w,wwwww",
             "wwwww,w wwwwwww w,wwwww",
@@ -102,7 +102,7 @@ public class Map
     public boolean isFree(int x,int y)
     {
         if(x>=0 && x< gp.maxScreenCol && y>=0 && y< gp.maxScreenRow)
-            return intMap[y][x] == 0 ||intMap[y][x] == 2 ||intMap[y][x] == 3;
+            return intMap[y][x] == 0 ||intMap[y][x] == 2 ||intMap[y][x] == 3||intMap[y][x] == 4||intMap[y][x] == 5;
         else
             return false;
     }
@@ -141,6 +141,14 @@ public class Map
                 else if (ch == ',')
                 {
                     out[y][x] = 3;
+                }
+                else if (ch == 'M')
+                {
+                    out[y][x] = 4;
+                }
+                else if (ch == 't')
+                {
+                    out[y][x] = 5;
                 }
             }
         }
