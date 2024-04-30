@@ -68,8 +68,8 @@ public class Ghost extends DynamicEntity
         arrived = false;
         alive = true;
         chaseState();
-        scatterX = 1;
-        scatterY = 1;
+        scatterX = 0;
+        scatterY = 0;
         tunneled = false;
         tunnelOut = false;
         alreadyEaten = false;
@@ -225,7 +225,7 @@ public class Ghost extends DynamicEntity
         //region Sceglie il target e lo segue
         if(state == States.chase) {
             goTo(getChaseX(), getChaseY());
-            System.out.println(getChaseX()+" "+pl.xTile+" "+getChaseY()+" "+pl.yTile);
+            //System.out.println(getChaseX()+" "+pl.xTile+" "+getChaseY()+" "+pl.yTile);
         }
         else if (state == States.frightened)
         {
