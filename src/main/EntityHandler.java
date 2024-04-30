@@ -1,9 +1,6 @@
 package main;
 
-import entity.Ghost;
-import entity.PacDot;
-import entity.Player;
-import entity.PowerPellet;
+import entity.*;
 import tile.Map;
 import utilities.AStar;
 
@@ -21,6 +18,7 @@ public class EntityHandler
     private AStar ast;
     Player player;
     Ghost blicky;
+    Pinky pinky;
     List<PacDot> pacDots;
 
     public EntityHandler(GamePanel gp, KeyHandler keyH, Map map, AStar ast)
@@ -30,7 +28,8 @@ public class EntityHandler
         this.map = map;
         this.ast = ast;
         player = new Player(gp, keyH,map);
-        blicky = new Ghost(gp,player,map,ast,10,11,"blinky");
+        blicky = new Ghost(gp,player,map,10,11,"blinky");
+        pinky = new Pinky(gp,player,map,11,11);
         pacDots = new LinkedList<>();
         fillPacDots();
     }
@@ -42,7 +41,8 @@ public class EntityHandler
         {
             pacdot.update();
         }
-        blicky.update();
+        //blicky.update();
+        pinky.update();
         player.update();
     }
 
@@ -52,7 +52,8 @@ public class EntityHandler
         {
             pacdot.draw(g2);
         }
-        blicky.draw(g2);
+        //blicky.draw(g2);
+        pinky.draw(g2);
         player.draw(g2);
     }
     void fillPacDots()

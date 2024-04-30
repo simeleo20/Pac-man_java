@@ -129,6 +129,7 @@ public class Player extends DynamicEntity
             }
 
         }
+        updateDir();
         oldX=x;
         oldY=y;
         if(Objects.equals(direction, "up"))

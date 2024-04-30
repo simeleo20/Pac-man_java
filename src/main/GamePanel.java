@@ -97,7 +97,6 @@ public class GamePanel extends JPanel implements Runnable
     }
     public void update()
     {
-        System.out.println("update");
         eh.update();
 
     }

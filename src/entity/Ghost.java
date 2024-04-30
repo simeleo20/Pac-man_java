@@ -46,12 +46,12 @@ public class Ghost extends DynamicEntity
     private boolean tunneled;
     private boolean tunnelOut;
 
-    public Ghost(GamePanel gp, Player pl, Map map, AStar aStar,int spawnX,int spawnY,String name)
+    public Ghost(GamePanel gp, Player pl, Map map,int spawnX,int spawnY,String name)
     {
         this.gp  = gp;
         this.map = map;
         this.pl  = pl;
-        this.ast = aStar;
+        //this.ast = aStar;
         this.spawnX = spawnX;
         this.spawnY = spawnY;
         this.name = name;
@@ -223,8 +223,10 @@ public class Ghost extends DynamicEntity
     public void goToTarget()
     {
         //region Sceglie il target e lo segue
-        if(state == States.chase)
-            goTo(getChaseX(),getChaseY());
+        if(state == States.chase) {
+            goTo(getChaseX(), getChaseY());
+            System.out.println(getChaseX()+" "+pl.xTile+" "+getChaseY()+" "+pl.yTile);
+        }
         else if (state == States.frightened)
         {
             randomDir();
