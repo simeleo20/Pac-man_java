@@ -36,8 +36,8 @@ public class Ghost extends DynamicEntity
     private States state;
     int scatterX, scatterY;
     int spawnX, spawnY;
-    int jailTimer;
-
+    double jailTimer;
+    double lastTime;
     private boolean alreadyEaten;
     private String name;
     private Timer timer;
@@ -62,22 +62,31 @@ public class Ghost extends DynamicEntity
     {
         x=gp.tileSize* spawnX + (gp.tileSize/2);
         y=gp.tileSize* spawnY + (gp.tileSize/2);
+        updTilePos();
         timer = new Timer();
         speed = 2;
         direction = "up";
         arrived = false;
         alive = true;
         chaseState();
-        scatterX = 0;
-        scatterY = 0;
+        defaultScatter();
         tunneled = false;
         tunnelOut = false;
         alreadyEaten = false;
-
+        jailTimer =10;
+        lastTime=System.nanoTime();;
+    }
+    public void defaultScatter()
+    {
+        scatterX = 0;
+        scatterY = 0;
     }
     public void update()
     {
-        if(alive)
+        System.out.println(jailTimer);
+        jailTimer += lastTime - System.nanoTime();
+        lastTime =System.nanoTime();
+        if(alive&&jailTimer<=0)
         {
             checkState();
             checkCollision();
@@ -88,9 +97,10 @@ public class Ghost extends DynamicEntity
             else if(state == States.frightened)
                 anim.run("scared");
             else
-                anim.run("idle");
+                anim.run("right");
             //endregion
         }
+
     }
 
     private void move()
@@ -273,10 +283,10 @@ public class Ghost extends DynamicEntity
     {
         //region settaggio animazioni
         anim = new Animator();
-        anim.newAnimation("idle",directory,5);
+        anim.newAnimation("right",directory+"right/",5);
         anim.newAnimation("scared","/ghost/scared/",5);
         anim.newAnimation("eatenDown","/ghost/"+name+"/eaten/down",1);
-        anim.run("idle");
+        anim.run("right");
         //endregion
     }
     public void draw(Graphics2D g2)
@@ -286,14 +296,16 @@ public class Ghost extends DynamicEntity
         {
             anim.next();
             g2.drawImage(anim.getSprite(), x - (ghSize / 2), y - (ghSize / 2), ghSize, ghSize, null);
+            drawTarget(g2);
         }
         //endregion
     }
+    public void drawTarget(Graphics2D g2){}
     private void checkCollision()
     {
         //region Controlla la distanza dal player
         double dis = (double)abs(pl.x-x)+abs(pl.y-y) ;
-        double minDis = (double)(pl.plSize+ghSize)/2;
+        double minDis = (double)(pl.plSize+ghSize)/3;
         if(dis<=minDis)
         {
             collision();

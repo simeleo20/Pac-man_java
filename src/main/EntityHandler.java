@@ -17,9 +17,10 @@ public class EntityHandler
     private Map map;
     private AStar ast;
     Player player;
-    Ghost blicky;
+    Blinky blinky;
     Pinky pinky;
     Clyde clyde;
+    Inky inky;
     List<PacDot> pacDots;
 
     public EntityHandler(GamePanel gp, KeyHandler keyH, Map map, AStar ast)
@@ -29,9 +30,10 @@ public class EntityHandler
         this.map = map;
         this.ast = ast;
         player = new Player(gp, keyH,map);
-        blicky = new Ghost(gp,player,map,10,11,"blinky");
-        pinky = new Pinky(gp,player,map,11,11);
-        clyde = new Clyde(gp,player,map,13,11);
+        blinky = new Blinky(gp,player,map,9,11);
+        pinky = new Pinky(gp,player,map,10,11);
+        clyde = new Clyde(gp,player,map,12,11);
+        inky = new Inky(gp,player,map,13,11,blinky);
         pacDots = new LinkedList<>();
         fillPacDots();
     }
@@ -43,9 +45,10 @@ public class EntityHandler
         {
             pacdot.update();
         }
-        //blicky.update();
-        //pinky.update();
+        blinky.update();
+        pinky.update();
         clyde.update();
+        inky.update();
         player.update();
     }
 
@@ -55,9 +58,10 @@ public class EntityHandler
         {
             pacdot.draw(g2);
         }
-        //blicky.draw(g2);
-        //pinky.draw(g2);
+        blinky.draw(g2);
+        pinky.draw(g2);
         clyde.draw(g2);
+        inky.draw(g2);
         player.draw(g2);
     }
     void fillPacDots()

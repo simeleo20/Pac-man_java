@@ -13,7 +13,7 @@ public class PowerPellet extends PacDot
     {
         dotSize = (int)((double)4 * gp.scale);
         alive = true;
-        points = 100;
+        points = 50;
     }
     protected void collision()
     {
