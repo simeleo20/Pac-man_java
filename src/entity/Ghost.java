@@ -97,7 +97,7 @@ public class Ghost extends DynamicEntity
             else if(state == States.frightened)
                 anim.run("scared");
             else
-                anim.run("right");
+                anim.run(direction);
             //endregion
         }
 
@@ -284,6 +284,9 @@ public class Ghost extends DynamicEntity
         //region settaggio animazioni
         anim = new Animator();
         anim.newAnimation("right",directory+"right/",5);
+        anim.newAnimation("left",directory+"left/",5);
+        anim.newAnimation("up",directory+"up/",5);
+        anim.newAnimation("down",directory+"down/",5);
         anim.newAnimation("scared","/ghost/scared/",5);
         anim.newAnimation("eatenDown","/ghost/"+name+"/eaten/down",1);
         anim.run("right");
