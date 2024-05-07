@@ -73,8 +73,8 @@ public class Ghost extends DynamicEntity
         tunneled = false;
         tunnelOut = false;
         alreadyEaten = false;
-        jailTimer =10;
-        lastTime=System.nanoTime();;
+        jailTimer =0.5;
+        lastTime=-38;
     }
     public void defaultScatter()
     {
@@ -83,8 +83,10 @@ public class Ghost extends DynamicEntity
     }
     public void update()
     {
+        if(lastTime==-38)
+            lastTime=System.nanoTime();
         System.out.println(jailTimer);
-        jailTimer += lastTime - System.nanoTime();
+        jailTimer += (lastTime - (double)System.nanoTime())*0.000000001;
         lastTime =System.nanoTime();
         if(alive&&jailTimer<=0)
         {
@@ -111,6 +113,12 @@ public class Ghost extends DynamicEntity
         int xTarget =xTile* gp.tileSize+(gp.tileSize/2);
 
         int rSpeed = speed;
+
+        if(xTile>4 && xTile<18)
+        {
+            tunneled = false;
+            tunnelOut = true;
+        }
 
         if(tunneled) rSpeed = 1;
 
