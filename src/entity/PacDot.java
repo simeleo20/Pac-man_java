@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class PacDot extends Entity
 {
-    Player pl;
+    public Player pl;
     public boolean alive;
     int dotSize;
     int points;
@@ -42,6 +42,7 @@ public class PacDot extends Entity
     }
     protected void collision()
     {
+        gp.addPoints(points);
         pl.addPoints(points);
         pl.addFramesStop(1);
         alive = false;

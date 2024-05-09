@@ -32,12 +32,13 @@ public class GamePanel extends JPanel implements Runnable
     //FPS
     int FPS = 60;
 
+    int points;
 
     KeyHandler keyH = new KeyHandler();
     Thread gameThread;
     Map map = new Map(this);
     AStar aStar = new AStar(maxScreenRow, maxScreenCol, new Node(1, 1), new Node(2, 1),map.intMap);
-    EntityHandler eh = new EntityHandler(this,keyH,map,aStar);
+    public EntityHandler eh = new EntityHandler(this,keyH,map,aStar);
 
 
 
@@ -49,6 +50,8 @@ public class GamePanel extends JPanel implements Runnable
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+        this.points=0;
+
 //        aStar.setInitialNode(new Node(7,3));
 //        aStar.setFinalNode(new Node(10,1));
 //        List<Node> path = aStar.findPath();
@@ -113,6 +116,15 @@ public class GamePanel extends JPanel implements Runnable
     }
     public void restart()
     {
-        eh = new EntityHandler(this,keyH,map,aStar);
+        eh.restart();
+        eh.fillPacDots();
+        eh.life=3;
+        //eh = new EntityHandler(this,keyH,map,aStar);
+        points = 0;
     }
+    public void addPoints(int points)
+    {
+        this.points += points;
+    }
+    public int getPoints() {return this.points;}
 }

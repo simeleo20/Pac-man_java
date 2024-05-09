@@ -13,10 +13,7 @@ import java.util.*;
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 
-/*
- *  c'è un bug si incastra nello spawn
- *
- */
+
 public class Ghost extends DynamicEntity
 {
     enum States
@@ -37,6 +34,7 @@ public class Ghost extends DynamicEntity
     int scatterX, scatterY;
     int spawnX, spawnY;
     double jailTimer;
+    int jailPoint;
     double lastTime;
     private boolean alreadyEaten;
     private String name;
@@ -68,12 +66,13 @@ public class Ghost extends DynamicEntity
         direction = "up";
         arrived = false;
         alive = true;
-        chaseState();
+        state=States.jailed;
         defaultScatter();
         tunneled = false;
         tunnelOut = false;
         alreadyEaten = false;
-        jailTimer =0.5;
+        jailTimer =0.3;
+        jailPoint=0;
         lastTime=-38;
     }
     public void defaultScatter()
@@ -85,24 +84,34 @@ public class Ghost extends DynamicEntity
     {
         if(lastTime==-38)
             lastTime=System.nanoTime();
-        System.out.println(jailTimer);
-        jailTimer += (lastTime - (double)System.nanoTime())*0.000000001;
-        lastTime =System.nanoTime();
-        if(alive&&jailTimer<=0)
+        if(state==States.jailed)
         {
-            checkState();
-            checkCollision();
-            move();
-            //region scelta animazione
-            if(state == States.eaten)
-                anim.run("eatenDown");
-            else if(state == States.frightened)
-                anim.run("scared");
-            else
-                anim.run(direction);
-            //endregion
+            jailTimer += (lastTime - (double) System.nanoTime()) * 0.000000001;
+            if(jailTimer<=0 && gp.getPoints()>=jailPoint) chaseState();
+            if(pl.isChasing) alreadyEaten =true;
         }
 
+        lastTime =System.nanoTime();
+
+        if(alive)
+        {
+            if(state!=States.jailed) {
+                checkState();
+                checkCollision();
+            }
+            move();
+            choseAnimation();
+        }
+
+    }
+    private void choseAnimation()
+    {
+        if(state == States.eaten)
+            anim.run("eatenDown");
+        else if(state == States.frightened)
+            anim.run("scared");
+        else
+            anim.run(direction);
     }
 
     private void move()
@@ -308,6 +317,7 @@ public class Ghost extends DynamicEntity
             anim.next();
             g2.drawImage(anim.getSprite(), x - (ghSize / 2), y - (ghSize / 2), ghSize, ghSize, null);
             drawTarget(g2);
+            g2.drawRect(spawnX*gp.tileSize,spawnY*gp.tileSize,gp.tileSize,gp.tileSize);
         }
         //endregion
     }
@@ -344,7 +354,7 @@ public class Ghost extends DynamicEntity
         double app = -1;
 
         //region check up
-        if(map.isFree(xTile,yTile-1)&& !Objects.equals(direction, "down"))
+        if(map.isFree(xTile,yTile-1)&& !Objects.equals(direction, "down")&&state!=States.jailed)
         {
             app = distance(tX,tY,xTile,yTile-1);
             if(minDis<0)

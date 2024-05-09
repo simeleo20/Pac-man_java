@@ -16,6 +16,7 @@ import javax.imageio.ImageIO;
 
 import animation.Animation;
 import animation.Animator;
+import main.EntityHandler;
 import main.GamePanel;
 import main.KeyHandler;
 import tile.Map;
@@ -25,7 +26,8 @@ import java.util.TimerTask;
 public class Player extends DynamicEntity
 {
     private KeyHandler keyH;
-    final int plSize = 30;
+    private EntityHandler eh;
+    final int plSize;
     String tryDirection;
     int oldX;
     int oldY;
@@ -36,13 +38,16 @@ public class Player extends DynamicEntity
     boolean dead;
     private int framesStop;
 
+
     int ghostEaten;
 
-    public Player(GamePanel gp, KeyHandler keyH, Map map)
+    public Player(GamePanel gp, KeyHandler keyH, Map map, EntityHandler eh)
     {
         this.gp = gp;
         this.keyH =keyH;
         this.map = map;
+        this.eh = eh;
+        this.plSize=gp.tileSize;
         seDefaultValues();
         setPlayerImages();
     }
@@ -65,7 +70,16 @@ public class Player extends DynamicEntity
         if(framesStop<=0)
         {
             if (Objects.equals(anim.getAnimation("death").getMessage(), "finito"))
-                gp.restart();
+            {
+                if(eh.life==1)
+                    gp.restart();
+                else
+                {
+                    eh.life--;
+                    eh.restart();
+                }
+                System.out.println("lifeeeee: "+eh.life);
+            }
             if (!dead)
             {
                 move();
@@ -203,16 +217,13 @@ public class Player extends DynamicEntity
     public void draw(Graphics2D g2)
     {
         g2.drawImage(anim.getSprite(),x-(plSize/2),y-(plSize/2),plSize,plSize,null);
-        g2.setColor(Color.white);
-        g2.setFont(new Font("TimesRoman", Font.PLAIN, gp.tileSize/2 -1));
 
-        g2.drawString("HIGH SCORE",gp.screenWidth/2 -(gp.tileSize*3/2),gp.tileSize/2);
-        g2.drawString(""+points,gp.screenWidth/2,gp.tileSize);
+
     }
 
     public int getPoints()
     {
-        return points;
+        return this.points;
     }
     public void addPoints(int points)
     {
@@ -221,14 +232,23 @@ public class Player extends DynamicEntity
 
     public void eatGhost()
     {
-        if (ghostEaten==0)
-            points+=200;
+        if (ghostEaten==0) {
+            gp.addPoints(200);
+            addPoints(200);
+        }
         else if (ghostEaten==1)
-            points+=400;
-        else if (ghostEaten==2)
-            points+=800;
-        else if (ghostEaten==3)
-            points+=1600;
+        {
+            gp.addPoints(400);
+            addPoints(400);
+        }
+        else if (ghostEaten==2) {
+            gp.addPoints(800);
+            addPoints(800);
+        }
+        else if (ghostEaten==3) {
+            gp.addPoints(1600);
+            addPoints(1600);
+        }
 
 
     }

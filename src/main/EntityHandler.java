@@ -16,12 +16,13 @@ public class EntityHandler
     private KeyHandler keyH;
     private Map map;
     private AStar ast;
-    Player player;
+    public Player player;
     Blinky blinky;
     Pinky pinky;
     Clyde clyde;
     Inky inky;
     List<PacDot> pacDots;
+    public int life;
 
     public EntityHandler(GamePanel gp, KeyHandler keyH, Map map, AStar ast)
     {
@@ -29,15 +30,28 @@ public class EntityHandler
         this.keyH = keyH;
         this.map = map;
         this.ast = ast;
-        player = new Player(gp, keyH,map);
+        life=3;
+        defaultValue();
+        pacDots = new LinkedList<>();
+        fillPacDots();
+    }
+    void defaultValue()
+    {
+        player = new Player(gp, keyH,map,this);
         blinky = new Blinky(gp,player,map,9,11);
         pinky = new Pinky(gp,player,map,10,11);
         clyde = new Clyde(gp,player,map,12,11);
         inky = new Inky(gp,player,map,13,11,blinky);
-        pacDots = new LinkedList<>();
-        fillPacDots();
     }
-
+    public void restart()
+    {
+        player.seDefaultValues();
+        blinky.setDefaultValues();
+        pinky.setDefaultValues();
+        clyde.setDefaultValues();
+        inky.setDefaultValues();
+        //restartPacDots();
+    }
     public void update()
     {
 
@@ -74,5 +88,12 @@ public class EntityHandler
                 else if(map.intMap[y][x]==2)
                     pacDots.add(new PowerPellet(gp,player,x,y));
             }
+    }
+    void restartPacDots()
+    {
+        for(PacDot pacdot:pacDots)
+        {
+            pacdot.pl = player;
+        }
     }
 }

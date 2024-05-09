@@ -18,6 +18,7 @@ public class PowerPellet extends PacDot
     protected void collision()
     {
         pl.addPoints(points);
+        gp.addPoints(points);
         pl.addFramesStop(3);
         pl.chase();
         alive = false;

@@ -120,6 +120,18 @@ public class Map
         //g2.drawImage(ts.getTile(true,false,true,true).image,0,0,gp.tileSize,gp.tileSize,null);
 
 
+        g2.setColor(Color.white);
+        g2.setFont(new Font("TimesRoman", Font.PLAIN, gp.tileSize/2 -1));
+
+        g2.drawString("HIGH SCORE",gp.screenWidth/2 -(gp.tileSize*3/2),gp.tileSize/2);
+        g2.drawString(""+gp.getPoints(),gp.screenWidth/2,gp.tileSize);
+
+        g2.drawString("CURRENT SCORE",gp.screenWidth/2 +(gp.tileSize*3/2),gp.tileSize/2);
+        g2.drawString(""+gp.eh.player.getPoints(),gp.screenWidth/2+(gp.tileSize*3),gp.tileSize);
+
+        for (int i = 0; i < gp.eh.life; i++) {
+
+        }
     }
 
     private int[][] stringsToIntMap()

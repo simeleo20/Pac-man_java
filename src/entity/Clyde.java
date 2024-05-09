@@ -13,12 +13,12 @@ public class Clyde extends Ghost
 {
     public Clyde(GamePanel gp, Player pl, Map map, int spawnX, int spawnY) {
         super(gp, pl, map, spawnX, spawnY, "clyde");
+        jailPoint=700;
     }
     public int getChaseX()
     {
         if(distance(pl.xTile,pl.yTile,xTile,yTile)<=8)
         {
-            System.out.println("innnnnnnn");
             return scatterX;
         }
         return pl.xTile;

@@ -14,7 +14,7 @@ public class Inky extends Ghost
     {
         super(gp, pl, map,spawnX,spawnY,"inky");
         this.blinky=blinky;
-
+        jailPoint=300;
     }
 
     @Override
