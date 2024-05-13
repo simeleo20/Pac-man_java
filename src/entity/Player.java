@@ -31,7 +31,7 @@ public class Player extends DynamicEntity
     String tryDirection;
     int oldX;
     int oldY;
-    private int points=0;
+    private int points;
     public boolean isChasing;
     Timer timer = new Timer();
     TimerTask stopChase;
@@ -48,8 +48,9 @@ public class Player extends DynamicEntity
         this.map = map;
         this.eh = eh;
         this.plSize=gp.tileSize;
-        seDefaultValues();
         setPlayerImages();
+        seDefaultValues();
+
     }
     public void seDefaultValues()
     {
@@ -58,11 +59,14 @@ public class Player extends DynamicEntity
         oldX=x;
         oldY=y;
         speed = 2;
+        tryDirection="right";
         direction = "right";
         isChasing = false;
         dead = false;
         framesStop =0;
         ghostEaten =0;
+        anim.resetAnimationsValues();
+        points=0;
     }
     public void update()
     {
@@ -72,9 +76,13 @@ public class Player extends DynamicEntity
             if (Objects.equals(anim.getAnimation("death").getMessage(), "finito"))
             {
                 if(eh.life==1)
+                {
+                    System.out.println("restart completo");
                     gp.restart();
+                }
                 else
                 {
+                    System.out.println("restart base");
                     eh.life--;
                     eh.restart();
                 }

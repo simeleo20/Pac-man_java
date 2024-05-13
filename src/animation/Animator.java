@@ -106,5 +106,10 @@ public class Animator
     {
         idleAnimation = name;
     }
-
+    public void resetAnimationsValues()
+    {
+        animations.forEach((key,anim) -> {
+            anim.reset();
+        });
+    }
 }

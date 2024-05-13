@@ -64,6 +64,7 @@ public class Animation
         frame = 0;
         frameCounter=0;
         finished= false;
+        resetMessage();
     }
     public BufferedImage getSprite()
     {
@@ -110,5 +111,8 @@ public class Animation
     {
         return endOutMessage;
     }
-
+    public void resetMessage()
+    {
+        endOutMessage = "";
+    }
 }

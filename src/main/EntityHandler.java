@@ -1,5 +1,6 @@
 package main;
 
+import animation.Animation;
 import entity.*;
 import tile.Map;
 import utilities.AStar;
@@ -11,7 +12,7 @@ import java.util.List;
 public class EntityHandler
 {
 
-
+    private Animation animation;
     private GamePanel gp;
     private KeyHandler keyH;
     private Map map;
@@ -23,7 +24,7 @@ public class EntityHandler
     Inky inky;
     List<PacDot> pacDots;
     public int life;
-
+    private boolean restartCalled;
     public EntityHandler(GamePanel gp, KeyHandler keyH, Map map, AStar ast)
     {
         this.gp = gp;
@@ -42,19 +43,29 @@ public class EntityHandler
         pinky = new Pinky(gp,player,map,10,11);
         clyde = new Clyde(gp,player,map,12,11);
         inky = new Inky(gp,player,map,13,11,blinky);
+        animation= new Animation("/player/idle/",5,true);
     }
     public void restart()
     {
-        player.seDefaultValues();
-        blinky.setDefaultValues();
-        pinky.setDefaultValues();
-        clyde.setDefaultValues();
-        inky.setDefaultValues();
+        restartCalled=true;
+
         //restartPacDots();
+    }
+    private void checkRestart()
+    {
+        if(restartCalled==true)
+        {
+            player.seDefaultValues();
+            blinky.setDefaultValues();
+            pinky.setDefaultValues();
+            clyde.setDefaultValues();
+            inky.setDefaultValues();
+            restartCalled=false;
+        }
     }
     public void update()
     {
-
+        checkRestart();
         for(PacDot pacdot:pacDots)
         {
             pacdot.update();
@@ -77,6 +88,12 @@ public class EntityHandler
         clyde.draw(g2);
         inky.draw(g2);
         player.draw(g2);
+        animation.next();
+        for (int i = 0; i < life-1; i++)
+        {
+            g2.drawImage(animation.getSprite(),6*gp.tileSize+(i*gp.tileSize),0,gp.tileSize,gp.tileSize,null);
+        }
+
     }
     void fillPacDots()
     {

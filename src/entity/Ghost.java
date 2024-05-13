@@ -53,6 +53,7 @@ public class Ghost extends DynamicEntity
         this.spawnX = spawnX;
         this.spawnY = spawnY;
         this.name = name;
+        this.timer = new Timer();
         setDefaultValues();
         setGhostImages("/ghost/"+name+"/idle/");
     }
@@ -61,7 +62,9 @@ public class Ghost extends DynamicEntity
         x=gp.tileSize* spawnX + (gp.tileSize/2);
         y=gp.tileSize* spawnY + (gp.tileSize/2);
         updTilePos();
-        timer = new Timer();
+
+
+
         speed = 2;
         direction = "up";
         arrived = false;
@@ -72,7 +75,6 @@ public class Ghost extends DynamicEntity
         tunnelOut = false;
         alreadyEaten = false;
         jailTimer =0.3;
-        jailPoint=0;
         lastTime=-38;
     }
     public void defaultScatter()
@@ -87,7 +89,14 @@ public class Ghost extends DynamicEntity
         if(state==States.jailed)
         {
             jailTimer += (lastTime - (double) System.nanoTime()) * 0.000000001;
-            if(jailTimer<=0 && gp.getPoints()>=jailPoint) chaseState();
+            if(jailTimer<=0 && pl.getPoints()>=jailPoint)
+            {
+                chaseState();
+                if(pl.getPoints()>=jailPoint)
+                {
+                    System.out.println("jaipoint: "+pl.getPoints());
+                }
+            }
             if(pl.isChasing) alreadyEaten =true;
         }
 
@@ -485,12 +494,14 @@ public class Ghost extends DynamicEntity
             if(!pl.isChasing)
             {
                 chaseState();
+
             }
         } else if (state==States.eaten)
         {
             if(xTile == spawnX && yTile == spawnY)
             {
                 chaseState();
+
             }
         }
     }
@@ -564,6 +575,7 @@ public class Ghost extends DynamicEntity
                 else
                 {
                     chaseState();
+
                 }
             }
         };
