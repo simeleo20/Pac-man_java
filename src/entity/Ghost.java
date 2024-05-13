@@ -27,7 +27,7 @@ public class Ghost extends DynamicEntity
     }
     Player pl;
     AStar ast;
-    final int ghSize = 21;
+    int ghSize;
     boolean arrived;
     public boolean alive;
     private States state;
@@ -54,6 +54,7 @@ public class Ghost extends DynamicEntity
         this.spawnY = spawnY;
         this.name = name;
         this.timer = new Timer();
+        this.ghSize=gp.tileSize;
         setDefaultValues();
         setGhostImages("/ghost/"+name+"/idle/");
     }
@@ -465,6 +466,10 @@ public class Ghost extends DynamicEntity
         state = States.eaten;
         alreadyEaten = true;
         speed = 2;
+
+        scatterChaseTask.cancel();
+
+
     }
     private void jailedState()
     {
